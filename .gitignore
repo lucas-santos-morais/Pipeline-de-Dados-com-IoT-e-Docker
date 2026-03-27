@@ -1,0 +1,11 @@
+# Não subir o ambiente virtual
+venv/
+
+# Não subir a pasta de dados (e o CSV pesado)
+data/
+
+# Ignorar configurações locais do PyCharm
+.idea/
+
+# Ignorar arquivos temporários e de cache do Python
+__pycache__/
