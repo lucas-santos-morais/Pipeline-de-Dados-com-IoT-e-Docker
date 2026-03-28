@@ -37,6 +37,17 @@ engine = create_engine("postgresql://postgres:12345@localhost:5432/postgres")
 
 print("[4/8] Banco de dados conectado ✅")
 
+# ------------- Limpando Views antigas ------------- #
+
+print("Limpando Views antigas para recriar a tabela...")
+
+with engine.connect() as conn:
+    conn.execute(text("DROP VIEW IF EXISTS avg_temp_por_dispositivo CASCADE;"))
+    conn.execute(text("DROP VIEW IF EXISTS leituras_por_hora CASCADE;"))
+    conn.execute(text("DROP VIEW IF EXISTS temp_max_min_por_dia CASCADE;"))
+    conn.execute(text("DROP VIEW IF EXISTS avg_temp_in_out_dia CASCADE;"))
+    conn.commit()
+
 print("[5/8] Criando tabela no banco de dados")
 
 #Criação da tabela no banco de dados para inserir os dados
@@ -76,6 +87,15 @@ with engine.connect() as conn:
         SELECT DATE (noted_date) AS data, MAX (temperature) AS temp_max, MIN (temperature) AS temp_min
         FROM iot_temp
         GROUP BY DATE (noted_date)
+        ORDER BY data;
+    """))
+
+    # View 4: Temperatura média diária separada por In/Out
+    conn.execute(text("""
+        CREATE OR REPLACE VIEW avg_temp_in_out_dia AS
+        SELECT DATE (noted_date) AS data, out_in, AVG (temperature) AS avg_temp
+        FROM iot_temp
+        GROUP BY DATE (noted_date), out_in
         ORDER BY data;
     """))
 
